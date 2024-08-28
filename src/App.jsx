@@ -1,71 +1,67 @@
-import React, { useState } from 'react';
-import { HDNodeWallet, Wallet } from 'ethers';
+import React, { useState } from "react";
+import CreateSeed from "./components/CreateSeed";
+import GetsStarted from "./components/GetsStarted";
+import SolanaWallet from "./components/SolanaWallet";
+import { Buffer } from "buffer"; // Import Buffer polyfill
+import { generateMnemonic } from "bip39";
+import EthereumWallet from "./components/EthereumWallet";
 
-const App = () => {
-  const [mnemonic, setMnemonic] = useState('');
-  const [wallets, setWallets] = useState([]);
+// Set up Buffer polyfill for browser environment
+window.Buffer = Buffer;
 
-  const generateMnemonic = () => {
-    const randomMnemonic = Wallet.createRandom().mnemonic.phrase;
-    setMnemonic(randomMnemonic);
-    deriveETHWallets(randomMnemonic);
+function App() {
+  const [mnemonic, setMnemonic] = useState();
+  const [currentStep, setCurrentStep] = useState("GetsStarted");
+
+  const handleOnCreateWallet = async () => {
+    const mnemonic = generateMnemonic();
+    console.log(mnemonic);
+    setMnemonic(mnemonic);
+    setCurrentStep("CreateSeed");
   };
 
-  const deriveETHWallets = (mnemonic) => {
-    const seed = HDNodeWallet.fromMnemonic(mnemonic).privateKey;
-    const walletCount = 3; // Adjust for more wallets if needed
-    let tempWallets = [];
-
-    for (let i = 0; i < walletCount; i++) {
-      const derivationPath = `m/44'/60'/0'/0/${i}`;
-      const wallet = deriveEthereumWallet(seed, derivationPath);
-      tempWallets.push({
-        address: wallet.address,
-        publicKey: wallet.publicKey,
-      });
-    }
-    setWallets(tempWallets);
+  const handleOnSOL = () => {
+    setCurrentStep("SolanaWallet");
+  };
+  const handleOnETH = () => {
+    setCurrentStep("EthereumWallet");
+  };
+  const switchToETH = () => {
+    console.log("Switching to Ethereum Wallet");
+    setCurrentStep("EthereumWallet");
   };
 
-  const deriveEthereumWallet = (seed, derivationPath) => {
-    const privateKey = deriveEthereumPrivateKey(seed, derivationPath);
-    return new Wallet(privateKey);
-  };
-
-  const deriveEthereumPrivateKey = (seed, derivationPath) => {
-    const hdNode = HDNodeWallet.fromSeed(seed);
-    const child = hdNode.derivePath(derivationPath);
-    return child.privateKey;
+  const switchToSOL = () => {
+    console.log("Switching to Solana Wallet");
+    setCurrentStep("SolanaWallet");
   };
 
   return (
-    <div className="flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold mb-6">Ethereum Wallet Generator</h1>
-      <button
-        className="bg-blue-500 text-white p-2 rounded mb-6"
-        onClick={generateMnemonic}
-      >
-        Generate Mnemonic
-      </button>
-
-      {mnemonic && (
-        <div className="mb-6">
-          <h2 className="text-2xl">Mnemonic:</h2>
-          <p className="text-gray-600">{mnemonic}</p>
-        </div>
+    <div>
+      {currentStep === "GetsStarted" && (
+        <GetsStarted onCreate={handleOnCreateWallet} />
       )}
-
-      <div className="w-full">
-        {wallets.map((wallet, index) => (
-          <div key={index} className="border p-4 mb-4 rounded">
-            <h3 className="text-xl font-bold">Wallet {index + 1}</h3>
-            <p><strong>Address:</strong> {wallet.address}</p>
-            <p><strong>Public Key:</strong> {wallet.publicKey}</p>
-          </div>
-        ))}
-      </div>
+      {currentStep === "CreateSeed" && (
+        <CreateSeed
+          mnemonic={mnemonic}
+          solana={handleOnSOL}
+          eth={handleOnETH}
+        />
+      )}
+      {currentStep === "SolanaWallet" && (
+        <>
+         {console.log("Rendering eth Wallet")}
+        <SolanaWallet mnemonic={mnemonic} onSelectETH={switchToETH} />
+        </>
+      )}
+      {currentStep === "EthereumWallet" && (
+        <>
+        {console.log("Rendering Solana Wallet")}
+        <EthereumWallet mnemonic={mnemonic} onSelectSOL={switchToSOL} />
+        </>
+      )}
     </div>
   );
-};
+}
 
 export default App;
