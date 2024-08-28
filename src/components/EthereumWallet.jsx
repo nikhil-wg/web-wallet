@@ -3,7 +3,7 @@ import { mnemonicToSeed } from "bip39";
 import { Wallet, HDNodeWallet } from "ethers";
 // import Navbar from "./NavBar";
 
-function EthereumWallet({ mnemonic, switchToSOL }) {
+function EthereumWallet({ mnemonic, onSelectSOL }) {
   const [ethereumWallets, setEthereumWallets] = useState([]);
   const [walletToDelete, setWalletToDelete] = useState(null);
 
@@ -52,13 +52,13 @@ function EthereumWallet({ mnemonic, switchToSOL }) {
             Change Currency
           </div>
           <div className="collapse-content bg-base-200">
-            <button onClick={()=>{console.log("eth clicked");switchToSOL;}}>Solana Wallets</button>
+            <button onClick={onSelectSOL}>Solana Wallets</button>
           </div>
         </div>
         <h1 className="text-3xl font-bold mt-3 p-3">Ethereum Wallets</h1>
 
-        <button className="btn btn-active btn-primary m-3 mb-8">
-          Add Wallet
+        <button className="btn btn-active btn-primary m-3 mb-8" onClick={addWallet}>
+          Add Wallet 
         </button>
       </div>
       <div className="flex flex-col justify-center items-center">

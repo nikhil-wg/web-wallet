@@ -53,7 +53,7 @@ function SolanaWallet({ mnemonic,onSelectETH }) {
             Change Currency
           </div>
           <div className="collapse-content bg-base-200">
-            <button onClick={()=>{console.log("sol clicked"); onSelectETH;}}>Ethereum Wallets</button>
+            <button onClick={ onSelectETH}>Ethereum Wallets</button>
           </div>
         </div>
         <h1 className="text-3xl font-bold mt-3 p-3">Solana Wallets</h1>
